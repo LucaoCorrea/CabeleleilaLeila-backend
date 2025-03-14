@@ -28,11 +28,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().disable() // Habilita CORS
-            .csrf().disable() // Desabilita CSRF (apenas para desenvolvimento)
+        http.cors().disable() 
+            .csrf().disable()
             .authorizeRequests()
-                .antMatchers("/api/auth/register", "/api/auth/login").permitAll() // Permite acesso público
-                .anyRequest().authenticated(); // Todas as outras rotas exigem autenticação
+                .antMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                .anyRequest().authenticated();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Permite requisições do frontend
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
