@@ -28,56 +28,63 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-    private static final String[] WHITE_LIST_URL = {
-            "/api/v1/auth/**", "/api/v1/appoiment", "/api/v1/users", "/api/v1/appoiment/{id}",
-            "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources",
-            "/swagger-resources/**", "/configuration/ui", "/configuration/security",
-            "/swagger-ui/**", "/webjars/**", "/swagger-ui.html"
-    };
+        private static final String[] WHITE_LIST_URL = {
+                        "/api/v1/auth/**", "/api/v1/appoiment", "/api/v1/users", "/api/v1/appoiment/{id}",
+                        "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources",
+                        "/swagger-resources/**", "/configuration/ui", "/configuration/security",
+                        "/swagger-ui/**", "/webjars/**", "/swagger-ui.html"
+        };
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
-    private final LogoutHandler logoutHandler;
+        private final JwtAuthenticationFilter jwtAuthFilter;
+        private final AuthenticationProvider authenticationProvider;
+        private final LogoutHandler logoutHandler;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(request -> new org.springframework.web.cors.CorsConfiguration()
-                        .applyPermitDefaultValues()))
-                .csrf().disable()
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(WHITE_LIST_URL).permitAll()
-                        .requestMatchers(POST)
-                        .hasAnyRole(ADMIN.name(), MANAGER.name())
-                        .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
-                        .requestMatchers(GET, "/api/v1/management/**")
-                        .hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
-                        .requestMatchers(POST, "/api/v1/management/**")
-                        .hasAnyAuthority(ADMIN_CREATE.name(), MANAGER_CREATE.name())
-                        .requestMatchers(PUT, "/api/v1/management/**")
-                        .hasAnyAuthority(ADMIN_UPDATE.name(), MANAGER_UPDATE.name())
-                        .requestMatchers(DELETE, "/api/v1/management/**")
-                        .hasAnyAuthority(ADMIN_DELETE.name(), MANAGER_DELETE.name())
-                        .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
-                        .addLogoutHandler(logoutHandler)
-                        .logoutSuccessHandler(
-                                (request, response, authentication) -> SecurityContextHolder.clearContext()));
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(
+                                                request -> new org.springframework.web.cors.CorsConfiguration()
+                                                                .applyPermitDefaultValues()))
+                                .csrf().disable()
+                                .authorizeHttpRequests(authz -> authz
+                                                .requestMatchers(WHITE_LIST_URL).permitAll()
+                                                .requestMatchers(POST, "/api/v1/management/**").hasRole(ADMIN.name()) // Apenas
+                                                                                                                      // ADMIN
+                                                                                                                      // pode
+                                                                                                                      // fazer
+                                                                                                                      // POST
+                                                .requestMatchers(GET, "/api/v1/management/**")
+                                                .hasAnyAuthority(ADMIN_READ.name(), CLIENT_READ.name()) // ADMIN e
+                                                                                                        // CLIENT podem
+                                                                                                        // ler
+                                                .requestMatchers(PUT, "/api/v1/management/**")
+                                                .hasAuthority(ADMIN_UPDATE.name()) // Apenas ADMIN pode fazer PUT
+                                                .requestMatchers(DELETE, "/api/v1/management/**")
+                                                .hasAuthority(ADMIN_DELETE.name()) // Apenas ADMIN pode fazer DELETE
+                                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authenticationProvider(authenticationProvider)
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
+                                                .addLogoutHandler(logoutHandler)
+                                                .logoutSuccessHandler(
+                                                                (request, response,
+                                                                                authentication) -> SecurityContextHolder
+                                                                                                .clearContext()));
 
-        return http.build();
-    }
-
-    @Configuration
-    public static class CorsConfig implements WebMvcConfigurer {
-
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:4200")
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT");
+                return http.build();
         }
-    }
+
+        @Configuration
+        public static class CorsConfig implements WebMvcConfigurer {
+
+                @Override
+                public void addCorsMappings(CorsRegistry registry) {
+                        registry.addMapping("/**")
+                                        .allowedOrigins("http://localhost:4200")
+                                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE",
+                                                        "CONNECT");
+                }
+        }
 }

@@ -1,18 +1,21 @@
 package com.leila.leilaSalao.controller;
 
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.leila.leilaSalao.model.UserResponse;
-import com.leila.leilaSalao.security.LoginRequest;
+import com.leila.leilaSalao.auth.AuthenticationResponse;
+import com.leila.leilaSalao.security.AuthenticationRequest;
 import com.leila.leilaSalao.security.RegisterRequest;
 import com.leila.leilaSalao.service.AuthenticationService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -21,15 +24,24 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(
-            @RequestBody RegisterRequest request) {
-        System.out.println("Dados recebidos: " + request); // Log dos dados recebidos
+    public ResponseEntity<AuthenticationResponse> register(
+            @RequestBody RegisterRequest request
+    ) {
         return ResponseEntity.ok(service.register(request));
     }
-
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
-        System.out.println("Dados recebidos: " + request); // Log dos dados recebidos
-        return ResponseEntity.ok(service.login(request));
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody AuthenticationRequest request
+    ) {
+        return ResponseEntity.ok(service.authenticate(request));
     }
+
+    @PostMapping("/refresh-token")
+    public void refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        service.refreshToken(request, response);
+    }
+
 }
