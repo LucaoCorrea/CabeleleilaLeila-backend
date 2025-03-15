@@ -2,6 +2,8 @@ package com.leila.leilaSalao.controller;
 
 import com.leila.leilaSalao.model.Appointment;
 import com.leila.leilaSalao.service.AppointmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,19 +11,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentController {
-    private final AppointmentService appointmentService;
 
-    public AppointmentController(AppointmentService appointmentService) {
-        this.appointmentService = appointmentService;
-    }
+    @Autowired
+    private AppointmentService appointmentService;
 
     @GetMapping("/user/{userId}")
-    public List<Appointment> getAppointmentsByUser(@PathVariable Long userId) {
-        return appointmentService.getAppointmentsByUserId(userId);
+    public ResponseEntity<List<Appointment>> getAppointmentsByUserId(@PathVariable Long userId) {
+        List<Appointment> appointments = appointmentService.getAppointmentsByUserId(userId);
+        return ResponseEntity.ok(appointments);
     }
 
     @PostMapping
-    public Appointment createAppointment(@RequestBody Appointment appointment) {
-        return appointmentService.createAppointment(appointment);
+    public ResponseEntity<Appointment> createAppointment(@RequestBody Appointment appointment) {
+        Appointment createdAppointment = appointmentService.createAppointment(appointment);
+        return ResponseEntity.ok(createdAppointment);
     }
 }
