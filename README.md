@@ -1,4 +1,4 @@
-a# Documentação do Projeto
+## Documentação do Projeto
 
 Este projeto consiste em uma aplicação full-stack para agendamentos em um salão de beleza. O front-end foi desenvolvido em  **React**  com  **Node.js** + **Vite**, e o back-end em  **Java**  com  **Spring Boot**. A aplicação está responsiva e foi projetada para funcionar em dispositivos móveis e desktops.
 
